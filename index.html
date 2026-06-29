@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Quant Desk</title>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Quant Desk" />
+<meta name="theme-color" content="#0a0e14" />
+<link rel="manifest" href='data:application/manifest+json,{"name":"Quant Desk","short_name":"Quant Desk","start_url":".","display":"standalone","background_color":"%230a0e14","theme_color":"%230a0e14","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 512 512%27%3E%3Crect width=%27512%27 height=%27512%27 rx=%2796%27 fill=%27%230a0e14%27/%3E%3Cpath d=%27M64 360 L192 232 L288 312 L448 152%27 fill=%27none%27 stroke=%27%2316c784%27 stroke-width=%2728%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3Ccircle cx=%27448%27 cy=%27152%27 r=%2724%27 fill=%27%23f0b90b%27/%3E%3C/svg%3E","sizes":"512x512","type":"image/svg+xml"}]}' />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%230a0e14'/%3E%3Cpath d='M64 360 L192 232 L288 312 L448 152' fill='none' stroke='%2316c784' stroke-width='28' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='448' cy='152' r='24' fill='%23f0b90b'/%3E%3C/svg%3E" />
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#121826; --panel2:#0f1521; --border:#1f2937;
+    --text:#e6edf3; --muted:#8b98a9; --green:#16c784; --red:#ea3943;
+    --amber:#f0b90b; --blue:#2f81f7; --mono:ui-monospace,"SFMono-Regular","JetBrains Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  #root{min-height:100vh;}
+  .wrap{max-width:760px; margin:0 auto; padding:16px 16px calc(28px + env(safe-area-inset-bottom)); }
+  .mono{font-family:var(--mono); font-variant-numeric:tabular-nums;}
+  .ticker{display:flex; align-items:center; justify-content:space-between; gap:10px;
+    border-bottom:1px solid var(--border); padding:10px 4px 14px; margin-bottom:14px;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.4px;}
+  .brand .dot{width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 10px var(--green); animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .brand small{display:block; font-weight:500; color:var(--muted); font-size:11px; letter-spacing:1.5px; text-transform:uppercase;}
+  .btn{appearance:none; border:1px solid var(--border); background:var(--panel); color:var(--text);
+    border-radius:12px; padding:13px 16px; font-size:16px; font-weight:600; cursor:pointer; transition:.12s; }
+  .btn:active{transform:scale(.98);}
+  .btn.ghost{background:transparent;}
+  .btn.green{background:rgba(22,199,132,.14); border-color:var(--green); color:var(--green);}
+  .btn.red{background:rgba(234,57,67,.14); border-color:var(--red); color:var(--red);}
+  .btn.amber{background:rgba(240,185,11,.14); border-color:var(--amber); color:var(--amber);}
+  .btn.blue{background:rgba(47,129,247,.16); border-color:var(--blue); color:#9ec5ff;}
+  .btn.sm{padding:8px 12px; font-size:14px; border-radius:10px;}
+  .btn.wide{width:100%;}
+  .btn[disabled]{opacity:.4; pointer-events:none;}
+  .grid{display:grid; gap:12px; grid-template-columns:repeat(2,1fr);}
+  @media (max-width:560px){ .grid{grid-template-columns:1fr;} }
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:16px;}
+  .tile{text-align:left; cursor:pointer; transition:.12s; position:relative; overflow:hidden;}
+  .tile:active{transform:scale(.985);}
+  .tile h3{margin:2px 0 4px; font-size:18px;}
+  .tile p{margin:0; color:var(--muted); font-size:13px; line-height:1.45;}
+  .tile .best{margin-top:12px; font-size:12px; color:var(--amber); font-family:var(--mono);}
+  .tile .glyph{position:absolute; right:-8px; top:-10px; font-size:64px; opacity:.06;}
+  .hud{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+  .stat{flex:1; min-width:88px; background:var(--panel2); border:1px solid var(--border); border-radius:12px; padding:10px 12px;}
+  .stat .k{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px;}
+  .stat .v{font-size:22px; font-weight:700; font-family:var(--mono); margin-top:2px;}
+  .prompt{font-family:var(--mono); font-weight:700; text-align:center; line-height:1.1;
+    word-break:break-word; padding:18px 6px; }
+  .prompt.big{font-size:clamp(34px,11vw,64px);}
+  .prompt.seq{font-size:clamp(20px,6.2vw,34px); letter-spacing:1px;}
+  .ans-row{display:flex; gap:10px; align-items:stretch; margin-top:6px;}
+  .signbtn{flex:0 0 auto; width:58px; font-size:24px; font-weight:800;}
+  input.num{flex:1 1 auto; width:100%; font-size:24px; font-family:var(--mono); text-align:center;
+    background:var(--panel2); border:1px solid var(--border); color:var(--text);
+    border-radius:12px; padding:14px 12px; min-width:0;}
+  input.num:focus{outline:none; border-color:var(--blue);}
+  .seg{display:flex; gap:6px; flex-wrap:wrap;}
+  .seg .btn{flex:1; min-width:72px;}
+  .seg .btn.on{border-color:var(--blue); background:rgba(47,129,247,.18); color:#cfe2ff;}
+  .opts{display:grid; gap:10px; grid-template-columns:1fr 1fr; margin-top:12px;}
+  @media (max-width:480px){ .opts{grid-template-columns:1fr;} }
+  .opt{text-align:left; line-height:1.3;}
+  .opt.correct{border-color:var(--green); background:rgba(22,199,132,.16);}
+  .opt.wrong{border-color:var(--red); background:rgba(234,57,67,.16);}
+  .explain{margin-top:14px; background:var(--panel2); border:1px solid var(--border); border-left:3px solid var(--amber);
+    border-radius:10px; padding:12px 14px; font-size:14px; line-height:1.5; color:#cdd6e0;}
+  .reveal{margin-top:14px; text-align:center;}
+  .reveal .rule{color:var(--muted); font-size:14px; margin-top:6px;}
+  .timerbar{height:8px; background:var(--panel2); border-radius:6px; overflow:hidden; border:1px solid var(--border);}
+  .timerbar > div{height:100%; background:var(--green); transition:width .25s linear;}
+  .timerbar.warn > div{background:var(--amber);}
+  .timerbar.crit > div{background:var(--red);}
+  .pnl-pos{color:var(--green);} .pnl-neg{color:var(--red);}
+  .ledger{margin-top:14px; border:1px solid var(--border); border-radius:12px; overflow:hidden;}
+  .ledger .row{display:flex; justify-content:space-between; padding:9px 12px; font-family:var(--mono); font-size:13px; border-top:1px solid var(--border);}
+  .ledger .row:first-child{border-top:none; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.6px;}
+  .note{color:var(--muted); font-size:13px; line-height:1.5;}
+  .center{text-align:center;}
+  h2{font-size:20px; margin:4px 0 14px;}
+  .label{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; margin:14px 0 6px;}
+  .flash{animation:flash .3s ease;}
+  @keyframes flash{0%{background:rgba(22,199,132,.25)}100%{background:transparent}}
+  .big-final{font-size:40px; font-weight:800; font-family:var(--mono);}
+  a.link{color:var(--blue); text-decoration:none;}
+  .challenge{background:linear-gradient(180deg,rgba(240,185,11,.10),rgba(240,185,11,.02));
+    border:1px solid rgba(240,185,11,.45); border-radius:16px; padding:16px;}
+  .ch-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .ch-eyebrow{font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--amber);}
+  .ch-days{font-size:12px; color:var(--muted); font-family:var(--mono);}
+  .chip{display:inline-block; margin-top:10px; font-size:11px; letter-spacing:.6px; text-transform:uppercase;
+    color:#cdd6e0; background:var(--panel2); border:1px solid var(--border); border-radius:999px; padding:3px 10px;}
+  .ch-text{font-size:clamp(16px,4.4vw,19px); line-height:1.55; margin:10px 0 4px; color:#f1f5f9;}
+  .scratch{width:100%; margin-top:10px; min-height:120px; resize:vertical; font-size:16px; line-height:1.5;
+    background:var(--panel2); border:1px solid var(--border); color:var(--text); border-radius:10px; padding:12px; font-family:var(--mono);}
+  .scratch:focus{outline:none; border-color:var(--amber);}
+</style>
+</head>
+<body>
+<div id="root"><div class="wrap" style="opacity:.6">Booting trading desk…</div></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const {useState, useEffect, useRef, useCallback} = React;
+
+/* ----------------------------- persistence ----------------------------- */
+/* Layered: artifact storage API if present -> localStorage -> in-memory.
+   All wrapped in try/catch so it never throws in any host. */
+const memStore = {};
+const Store = {
+  read(key, fallback){
+    try{
+      if (typeof window !== "undefined" && window.claudeStorage && window.claudeStorage.getItem){
+        const v = window.claudeStorage.getItem(key);
+        if (v != null) return JSON.parse(v);
+      }
+    }catch(e){}
+    try{
+      const v = window.localStorage.getItem(key);
+      if (v != null) return JSON.parse(v);
+    }catch(e){}
+    return (key in memStore) ? memStore[key] : fallback;
+  },
+  write(key, val){
+    memStore[key] = val;
+    const s = JSON.stringify(val);
+    try{
+      if (typeof window !== "undefined" && window.claudeStorage && window.claudeStorage.setItem){
+        window.claudeStorage.setItem(key, s);
+      }
+    }catch(e){}
+    try{ window.localStorage.setItem(key, s); }catch(e){}
+  }
+};
+function useBest(key, init){
+  const [v, setV] = useState(() => Store.read(key, init));
+  const commit = useCallback((nv) => { setV(nv); Store.write(key, nv); }, [key]);
+  return [v, commit];
+}
+
+/* ------------------------------ utilities ------------------------------ */
+const ri = (a,b) => Math.floor(Math.random()*(b-a+1))+a; // inclusive
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const todayKey = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+function fmtTime(s){ const m=Math.floor(s/60), ss=s%60; return m+":"+String(ss).padStart(2,"0"); }
+
+/* --------------------- shared signed number input ---------------------- */
+function SignedInput({digits, sign, setDigits, setSign, onEnter, placeholder, autoFocus}){
+  const ref = useRef(null);
+  useEffect(()=>{ if(autoFocus && ref.current) ref.current.focus(); },[autoFocus]);
+  return (
+    <div className="ans-row">
+      <button className={"btn signbtn "+(sign<0?"red":"")} onClick={()=>setSign(sign*-1)} aria-label="toggle sign">{sign<0?"−":"+"}</button>
+      <input
+        ref={ref}
+        className="num"
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9.]*"
+        value={digits}
+        placeholder={placeholder||"answer"}
+        onChange={e=>{ const c=e.target.value.replace(/[^0-9.]/g,""); setDigits(c); }}
+        onKeyDown={e=>{ if(e.key==="Enter" && onEnter) onEnter(); }}
+      />
+    </div>
+  );
+}
+
+/* =====================================================================
+   CHALLENGE OF THE MONTH  (curated, verified; no hints, statement only)
+   One per calendar month, rotating deterministically. A month-long think.
+   ===================================================================== */
+const MONTHLY_CHALLENGES = [
+ {cat:"Number Theory", text:"Prove that among any 51 integers chosen from {1, 2, …, 100}, there must exist two of them such that one divides the other."},
+ {cat:"Combinatorics", text:"Two opposite corner squares are removed from an 8×8 chessboard, leaving 62 squares. Prove that the remaining board cannot be completely covered by 31 dominoes (each covering two adjacent squares)."},
+ {cat:"Invariants", text:"The integers 1, 2, 3, …, 1000 are written on a board. Repeatedly erase any two of them and write down their absolute difference, until a single number remains. Determine, with proof, whether the final number is odd or even."},
+ {cat:"Number Theory", text:"Prove that the product of any four consecutive positive integers is never a perfect square."},
+ {cat:"Combinatorics", text:"In how many ways can a 2×n strip be tiled by 1×2 dominoes? Find a formula and prove it."},
+ {cat:"Geometry", text:"Five points are placed inside (or on the boundary of) a unit square. Prove that some two of them are at distance at most √2 / 2 from each other."},
+ {cat:"Inequalities", text:"Let a, b, c be positive reals with a + b + c = 3. Prove that a² + b² + c² ≥ 3, and determine when equality holds."},
+ {cat:"Number Theory", text:"Prove that there are infinitely many prime numbers of the form 4k + 3."},
+ {cat:"Graph Theory", text:"At a gathering of n ≥ 2 people, some pairs are friends (friendship is mutual). Prove that there must be two people who have exactly the same number of friends present."},
+ {cat:"Algebra", text:"Prove that 1/(1·2) + 1/(2·3) + 1/(3·4) + … + 1/(n(n+1)) = n/(n+1) for every positive integer n. What does the sum approach as n → ∞?"},
+ {cat:"Probability", text:"A fair coin is flipped repeatedly until two heads appear in a row. Find the expected number of flips required."},
+ {cat:"Probability", text:"n people leave their hats at a coat check; the hats are returned in a uniformly random order. Find the probability that nobody receives their own hat, and determine its limit as n → ∞."},
+ {cat:"Number Theory", text:"Prove that n⁵ − n is divisible by 30 for every integer n."},
+ {cat:"Ramsey Theory", text:"Six people are at a party. Prove that there must be either three people who are all mutual friends, or three people who are all mutual strangers."},
+ {cat:"Algebra", text:"Let P be a polynomial with integer coefficients such that P(0) and P(1) are both odd. Prove that P has no integer root."},
+ {cat:"Combinatorics", text:"How many subsets of {1, 2, …, n} contain no two consecutive integers? Prove that the count is a Fibonacci number."},
+ {cat:"Number Theory", text:"Prove that √2 is irrational. Then prove the stronger statement that √n is irrational for every positive integer n that is not a perfect square."},
+ {cat:"Invariants", text:"An island has 13 red, 15 green, and 17 blue chameleons. Whenever two chameleons of different colors meet, they both change to the third color. Can the chameleons ever all become the same color? Prove your answer."},
+ {cat:"Analysis", text:"Define a₁ = 1 and a_{n+1} = a_n + 1/a_n for n ≥ 1. Prove that 14 < a₁₀₀ < 15."},
+ {cat:"Graph Theory", text:"Prove that in any group of people, the number of people who have shaken hands an odd number of times is even."},
+ {cat:"Geometry", text:"Prove that the three medians of a triangle divide it into six smaller triangles, all of equal area."},
+ {cat:"Number Theory", text:"Prove that n⁴ + 4 is not prime for any integer n > 1."},
+ {cat:"Probability", text:"A fair six-sided die is rolled repeatedly and the results are summed into a running total. For a large target N, what is the approximate probability that the running total ever exactly equals N, in the limit as N → ∞?"},
+ {cat:"Combinatorics", text:"Prove that a 10×10 board cannot be tiled by 1×4 rectangles (using any mix of horizontal and vertical placements)."},
+];
+
+function MonthlyChallenge({extra}){
+  const bank = MONTHLY_CHALLENGES.concat((extra && extra.monthly) || []);
+  const now = new Date();
+  const mIdx = now.getFullYear()*12 + now.getMonth();
+  const ch = bank[((mIdx % bank.length)+bank.length) % bank.length];
+  const monthName = now.toLocaleString(undefined,{month:"long", year:"numeric"});
+  const mKey = now.getFullYear()+"-"+(now.getMonth()+1);
+  const [notes,setNotes] = useBest("qd_ch_notes_"+mKey, "");
+  const [solved,setSolved] = useBest("qd_ch_solved_"+mKey, false);
+  const [open,setOpen] = useState(false);
+  const lastDay = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const daysLeft = lastDay - now.getDate();
+  return (
+    <div className="challenge">
+      <div className="ch-top">
+        <div className="ch-eyebrow">◆ Challenge of the Month · {monthName}</div>
+        <div className="ch-days">{daysLeft} day{daysLeft===1?"":"s"} left</div>
+      </div>
+      <span className="chip">{ch.cat}</span>
+      <p className="ch-text">{ch.text}</p>
+      <div className="seg" style={{marginTop:6}}>
+        <button className={"btn sm "+(solved?"green":"ghost")} onClick={()=>setSolved(!solved)}>
+          {solved ? "✓ Solved" : "Mark solved"}
+        </button>
+        <button className="btn sm ghost" onClick={()=>setOpen(o=>!o)}>{open?"Hide notes":"Scratch pad"}</button>
+      </div>
+      {open && (
+        <textarea
+          className="scratch"
+          value={notes}
+          placeholder="Your own work and ideas. Saved on this device for the whole month. No hints live here — just you."
+          onChange={e=>setNotes(e.target.value)}
+        />
+      )}
+      <p className="note" style={{marginTop:10,fontSize:12}}>No hints by design. Under an hour a day, all month. New problem on the 1st.</p>
+    </div>
+  );
+}
+
+/* =====================================================================
+   DRILL 1 — MENTAL MATH SPRINT
+   ===================================================================== */
+function genMath(tier){
+  // returns {q (string), a (number)}
+  const T = tier;
+  if (T === "custom"){
+    // Jacob's Floor tier: negative decimals + longer chains. Non-integer answers allowed.
+    const mode = pick(["chain","decmul","decadd","mixneg"]);
+    if (mode==="chain"){
+      const a=ri(2,19), b=ri(2,19), c=ri(2,12), d=ri(2,12);
+      const q=`${a} × ${b} − ${c} × ${d}`; return {q, a:a*b-c*d};
+    }
+    if (mode==="decmul"){
+      const a=ri(12,49)/(pick([1,10])), b=ri(11,29)/10;
+      const av=(a).toFixed(1), bv=(b).toFixed(1);
+      const val=Math.round(a*b*100)/100;
+      return {q:`${av} × ${bv}`, a:val};
+    }
+    if (mode==="decadd"){
+      const a=-(ri(30,180)/10), b=ri(40,220)/10, c=-(ri(20,150)/10);
+      const val=Math.round((a+b+c)*10)/10;
+      return {q:`${a.toFixed(1)} + ${b.toFixed(1)} + (${c.toFixed(1)})`, a:val};
+    }
+    // mixneg
+    const a=ri(6,18), b=ri(6,18), c=ri(20,90);
+    const val=-(a*b)+c;
+    return {q:`${c} − ${a} × ${b}`, a:val};
+  }
+
+  const ops = T==="warmup" ? ["add","sub","mul","div","add"]
+            : T==="standard" ? ["add","sub","mul","div","pct","frac","mul2"]
+            : ["mul2","div","pct","frac","mix","sub","mul2"]; // hard
+  const op = pick(ops);
+  const R = (lo,hi)=>ri(lo,hi);
+
+  if (op==="add"){
+    const lo = T==="warmup"?2:12, hi = T==="warmup"?49: T==="standard"?199:899;
+    const a=R(lo,hi), b=R(lo,hi); return {q:`${a} + ${b}`, a:a+b};
+  }
+  if (op==="sub"){
+    const hi = T==="warmup"?60: T==="standard"?199:899;
+    const a=R(5,hi), b=R(5,hi); return {q:`${a} − ${b}`, a:a-b}; // negatives allowed
+  }
+  if (op==="mul"){
+    const hi = T==="warmup"?9:12;
+    const a=R(2,hi), b=R(2,12); return {q:`${a} × ${b}`, a:a*b};
+  }
+  if (op==="mul2"){
+    const a = T==="hard"?R(12,49):R(11,29);
+    const b = T==="hard"?R(11,29):R(3,19);
+    return {q:`${a} × ${b}`, a:a*b};
+  }
+  if (op==="div"){
+    const d = T==="warmup"?R(2,9): R(3,15);
+    const qn = T==="warmup"?R(2,12): R(4,30);
+    return {q:`${d*qn} ÷ ${d}`, a:qn};
+  }
+  if (op==="pct"){
+    const p = pick([5,10,15,20,25,40,50,75]);
+    // choose n so p% of n is integer
+    const base = pick([20,40,60,80,120,160,200,240]);
+    const n = base; const val = Math.round(p*n/100);
+    return {q:`${p}% of ${n}`, a:val};
+  }
+  if (op==="frac"){
+    const b = pick([2,3,4,5,6,8]);
+    const aNum = ri(1,b-1);
+    const k = ri(2, T==="hard"?18:9);
+    const n = b*k; const val = aNum*k;
+    return {q:`${aNum}/${b} of ${n}`, a:val};
+  }
+  // mix: a*b + c  (and sometimes a*b - c)
+  const a=R(3,19), b=R(3,12), c=R(5,60);
+  const plus = Math.random()<0.5;
+  return plus ? {q:`${a} × ${b} + ${c}`, a:a*b+c} : {q:`${a} × ${b} − ${c}`, a:a*b-c};
+}
+
+function MentalMath({onHome}){
+  const [phase,setPhase]=useState("setup"); // setup | run | done
+  const [mins,setMins]=useState(5);
+  const [tier,setTier]=useState("standard");
+  const [left,setLeft]=useState(0);
+  const [cur,setCur]=useState(null);
+  const [digits,setDigits]=useState(""); const [sign,setSign]=useState(1);
+  const [cleared,setCleared]=useState(0);
+  const [attempts,setAttempts]=useState(0); // cleared + skipped
+  const [flash,setFlash]=useState(false);
+  const tick=useRef(null);
+  const [best,setBest]=useBest("qd_math_best",{}); // keyed by mins+tier
+
+  const bestKey = mins+"-"+tier;
+  const bestVal = best[bestKey]||0;
+
+  const stop=useCallback(()=>{ if(tick.current){clearInterval(tick.current); tick.current=null;} },[]);
+  useEffect(()=>stop,[stop]); // cleanup on unmount
+
+  function start(){
+    setCleared(0); setAttempts(0); setDigits(""); setSign(1);
+    setCur(genMath(tier)); setLeft(mins*60); setPhase("run");
+  }
+  // timer
+  useEffect(()=>{
+    if(phase!=="run") return;
+    tick.current=setInterval(()=>{
+      setLeft(l=>{ if(l<=1){ stop(); setPhase("done"); return 0;} return l-1; });
+    },1000);
+    return stop;
+  },[phase,stop]);
+
+  // record best when done
+  useEffect(()=>{
+    if(phase==="done" && cleared>bestVal){
+      const nb={...best}; nb[bestKey]=cleared; setBest(nb);
+    }
+  },[phase]); // eslint-disable-line
+
+  function next(){ setCur(genMath(tier)); setDigits(""); setSign(1); }
+  function nextCleared(){ setCleared(c=>c+1); setAttempts(a=>a+1); setFlash(true); setTimeout(()=>setFlash(false),250); next(); }
+  function skip(){ setAttempts(a=>a+1); next(); }
+
+  // auto-submit on match
+  useEffect(()=>{
+    if(phase!=="run" || !cur || digits==="") return;
+    const val = sign*parseFloat(digits);
+    if(!isNaN(val) && val===cur.a) nextCleared();
+  },[digits,sign]); // eslint-disable-line
+
+  if(phase==="setup"){
+    return (
+      <div>
+        <Header title="Mental Math Sprint" onHome={onHome}/>
+        <div className="card">
+          <div className="label">Clock</div>
+          <div className="seg">
+            {[2,5,8].map(m=>(
+              <button key={m} className={"btn "+(mins===m?"on":"")} onClick={()=>setMins(m)}>{m} min</button>
+            ))}
+          </div>
+          <div className="label">Difficulty</div>
+          <div className="seg">
+            {[["warmup","Warmup"],["standard","Standard"],["hard","Hard"],["custom","Floor"]].map(([k,lbl])=>(
+              <button key={k} className={"btn "+(tier===k?"on":"")} onClick={()=>setTier(k)}>{lbl}</button>
+            ))}
+          </div>
+          <p className="note" style={{marginTop:12}}>
+            {tier==="warmup" && "Single-digit add/sub/×, easy division. Find your rhythm."}
+            {tier==="standard" && "Two-digit add/sub, times tables, division, percentages and fractions."}
+            {tier==="hard" && "Two-digit ×, percentages, fractions, and a·b±c chains. Interview pace."}
+            {tier==="custom" && "Your Floor tier: negative decimals and longer chains. Answers need not be integers."}
+          </p>
+          <div style={{marginTop:14}}>
+            <button className="btn green wide" onClick={start}>Open the session</button>
+          </div>
+          <p className="note center" style={{marginTop:12}}>Best at {mins}m · {tier}: <b className="mono" style={{color:"var(--amber)"}}>{bestVal}</b></p>
+        </div>
+      </div>
+    );
+  }
+
+  if(phase==="run"){
+    const acc = attempts? Math.round(100*cleared/attempts):100;
+    const frac = left/(mins*60);
+    const cls = frac<0.12?"crit":frac<0.3?"warn":"";
+    return (
+      <div>
+        <div className="hud">
+          <div className="stat"><div className="k">Time</div><div className="v" style={{color:cls==="crit"?"var(--red)":cls==="warn"?"var(--amber)":"var(--text)"}}>{fmtTime(left)}</div></div>
+          <div className="stat"><div className="k">Cleared</div><div className="v" style={{color:"var(--green)"}}>{cleared}</div></div>
+          <div className="stat"><div className="k">Accuracy</div><div className="v">{acc}%</div></div>
+        </div>
+        <div className={"timerbar "+cls}><div style={{width:(frac*100)+"%"}}></div></div>
+        <div className={"card "+(flash?"flash":"")} style={{marginTop:14}}>
+          <div className="prompt big mono">{cur.q}</div>
+          <SignedInput digits={digits} sign={sign} setDigits={setDigits} setSign={setSign} onEnter={skip} autoFocus/>
+          <div className="seg" style={{marginTop:10}}>
+            <button className="btn sm ghost" onClick={skip}>Skip ↵</button>
+            <button className="btn sm ghost" onClick={()=>{stop(); setPhase("done");}}>End now</button>
+          </div>
+        </div>
+        <p className="note center" style={{marginTop:12}}>Box auto-submits when your value matches. Enter skips.</p>
+      </div>
+    );
+  }
+
+  // done
+  const acc = attempts? Math.round(100*cleared/attempts):0;
+  const rate = (cleared/mins).toFixed(1);
+  const isBest = cleared>=bestVal && cleared>0;
+  return (
+    <div>
+      <Header title="Session closed" onHome={onHome}/>
+      <div className="card center">
+        <div className="label">Cleared</div>
+        <div className="big-final" style={{color:"var(--green)"}}>{cleared}</div>
+        <div className="hud" style={{marginTop:14}}>
+          <div className="stat"><div className="k">Per minute</div><div className="v">{rate}</div></div>
+          <div className="stat"><div className="k">Accuracy</div><div className="v">{acc}%</div></div>
+          <div className="stat"><div className="k">Best</div><div className="v" style={{color:"var(--amber)"}}>{Math.max(bestVal,cleared)}</div></div>
+        </div>
+        {isBest && <p style={{color:"var(--amber)",fontWeight:700}}>New best at {mins}m · {tier}.</p>}
+        <p className="note" style={{marginTop:6}}>
+          Optiver's "80 in 8" is roughly 80 questions in 8 minutes, about 10 a minute; 60+ is a strong score.
+        </p>
+        <div className="seg" style={{marginTop:8}}>
+          <button className="btn green" onClick={()=>setPhase("setup")}>New session</button>
+          <button className="btn ghost" onClick={onHome}>Desk</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =====================================================================
+   DRILL 2 — SEQUENCES
+   ===================================================================== */
+function genSeq(){
+  const type = pick(["arith","geo","fib","quad","alt","interleave","interleaveGeo","muladd"]);
+  let t=[], answer, rule;
+  if(type==="arith"){
+    const a0=ri(-6,18), d=ri(2,12)*(Math.random()<0.25?-1:1);
+    for(let i=0;i<7;i++) t.push(a0+i*d);
+    rule = `Arithmetic: add ${d} each step.`;
+  } else if(type==="geo"){
+    const a0=ri(1,5), r=pick([2,2,3]);
+    for(let i=0;i<7;i++) t.push(a0*Math.pow(r,i));
+    rule = `Geometric: multiply by ${r} each step.`;
+  } else if(type==="fib"){
+    let a=ri(1,5), b=ri(1,6); t=[a,b];
+    for(let i=2;i<7;i++) t.push(t[i-1]+t[i-2]);
+    rule = `Fibonacci-style: each term is the sum of the two before it.`;
+  } else if(type==="quad"){
+    const a0=ri(1,8), d0=ri(1,6), c=ri(1,4);
+    let cur=a0, d=d0; t=[cur];
+    for(let i=0;i<6;i++){ cur+=d; t.push(cur); d+=c; }
+    rule = `Quadratic: the differences start at ${d0} and grow by ${c} each step.`;
+  } else if(type==="alt"){
+    const a0=ri(1,12), x=ri(2,11), y=ri(2,11); let cur=a0; t=[cur];
+    for(let i=0;i<6;i++){ cur += (i%2===0? x : y); t.push(cur); }
+    rule = `Alternating: add ${x}, then add ${y}, repeating.`;
+  } else if(type==="interleave"){
+    const a0=ri(1,9), da=ri(2,7), b0=ri(2,12), db=ri(2,7);
+    // positions 0,2,4,6 -> A ; positions 1,3,5 -> B
+    for(let i=0;i<7;i++){
+      if(i%2===0) t.push(a0 + (i/2)*da);
+      else t.push(b0 + ((i-1)/2)*db);
+    }
+    rule = `Two interleaved sequences: odd positions add ${da}, even positions add ${db}.`;
+  } else if(type==="interleaveGeo"){
+    const a0=ri(1,4), ra=pick([2,3]), b0=ri(2,8), rb=pick([2,3]);
+    for(let i=0;i<7;i++){
+      if(i%2===0) t.push(a0 * Math.pow(ra, i/2));
+      else t.push(b0 * Math.pow(rb, (i-1)/2));
+    }
+    rule = `Two interleaved geometric sequences: odd positions multiply by ${ra}, even positions multiply by ${rb}.`;
+  } else { // muladd
+    const a0=ri(1,4), m=pick([2,2,3]), add=ri(1,5); let cur=a0; t=[cur];
+    for(let i=0;i<6;i++){ cur = cur*m + add; t.push(cur); }
+    rule = `Multiply then add: each term is the previous ×${m} + ${add}.`;
+  }
+  answer = t[6];
+  return {shown:t.slice(0,6), answer, rule};
+}
+
+function Sequences({onHome}){
+  const [cur,setCur]=useState(()=>genSeq());
+  const [digits,setDigits]=useState(""); const [sign,setSign]=useState(1);
+  const [state,setState]=useState("ask"); // ask | reveal
+  const [correctFlag,setCorrectFlag]=useState(false);
+  const [streak,setStreak]=useState(0);
+  const [best,setBest]=useBest("qd_seq_best",0);
+
+  function submit(){
+    if(digits==="") return;
+    const val=sign*parseFloat(digits);
+    const ok = val===cur.answer;
+    setCorrectFlag(ok);
+    if(ok){ const ns=streak+1; setStreak(ns); if(ns>best) setBest(ns); }
+    else setStreak(0);
+    setState("reveal");
+  }
+  function next(){ setCur(genSeq()); setDigits(""); setSign(1); setState("ask"); }
+
+  return (
+    <div>
+      <Header title="Sequences" onHome={onHome}/>
+      <div className="hud">
+        <div className="stat"><div className="k">Streak</div><div className="v" style={{color:"var(--green)"}}>{streak}</div></div>
+        <div className="stat"><div className="k">Best streak</div><div className="v" style={{color:"var(--amber)"}}>{best}</div></div>
+      </div>
+      <div className="card">
+        <div className="prompt seq mono">
+          {cur.shown.join(",  ")}<span style={{color:"var(--amber)"}}>,  ?</span>
+        </div>
+        {state==="ask" ? (
+          <div>
+            <SignedInput digits={digits} sign={sign} setDigits={setDigits} setSign={setSign} onEnter={submit} autoFocus/>
+            <button className="btn blue wide" style={{marginTop:10}} onClick={submit}>Submit</button>
+          </div>
+        ) : (
+          <div className="reveal">
+            <div style={{fontSize:18,fontWeight:700,color:correctFlag?"var(--green)":"var(--red)"}}>
+              {correctFlag? "Filled ✓" : "Missed"} — answer is {cur.answer}
+            </div>
+            <div className="rule">{cur.rule}</div>
+            <button className="btn green wide" style={{marginTop:14}} onClick={next}>Next</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* =====================================================================
+   DRILL 3 — PROBABILITY & EV
+   ===================================================================== */
+const PROB_BANK = [
+  {q:"You roll one fair six-sided die. What is its expected value?",
+   opts:["3","3.5","4","6"], correct:1,
+   ex:"E = (1+2+3+4+5+6)/6 = 21/6 = 3.5."},
+  {q:"Roll two fair dice. P(sum = 7)?",
+   opts:["1/6","1/9","5/36","1/12"], correct:0,
+   ex:"6 of 36 ordered outcomes sum to 7, so 6/36 = 1/6. Seven is the most likely sum."},
+  {q:"Fair coin. Expected number of flips to get the first heads?",
+   opts:["1","2","3","4"], correct:1,
+   ex:"Geometric with p=1/2, so E = 1/p = 2."},
+  {q:"Flip a fair coin 3 times. P(exactly 2 heads)?",
+   opts:["1/4","3/8","1/2","3/4"], correct:1,
+   ex:"C(3,2)/2^3 = 3/8."},
+  {q:"Draw one card from a standard 52-card deck. P(it is an ace)?",
+   opts:["1/13","1/26","1/4","4/13"], correct:0,
+   ex:"4 aces / 52 = 1/13."},
+  {q:"Roll two fair dice. P(at least one six)?",
+   opts:["1/6","1/3","11/36","1/2"], correct:2,
+   ex:"1 − (5/6)^2 = 1 − 25/36 = 11/36."},
+  {q:"A family has two children, and at least one is a boy. P(both are boys)?",
+   opts:["1/2","1/3","1/4","2/3"], correct:1,
+   ex:"Equally likely sets {BB,BG,GB}; only BB is two boys, so 1/3."},
+  {q:"5 people sit in a random row. P(two specific people sit next to each other)?",
+   opts:["1/5","2/5","1/4","1/2"], correct:1,
+   ex:"Treat the pair as adjacent: 2·4!/5! = 2/5. In general it's 2/n for n people."},
+  {q:"Roll two fair dice. Expected value of the larger of the two?",
+   opts:["3.5","4.0","4.47","5.0"], correct:2,
+   ex:"P(max=k)=(2k−1)/36; E[max] = 161/36 ≈ 4.47."},
+  {q:"Roll a fair die repeatedly. Expected number of rolls to see the first six?",
+   opts:["3","5","6","7"], correct:2,
+   ex:"Geometric with p=1/6, so E = 1/p = 6."},
+  {q:"Flip a fair coin 5 times. P(exactly 3 heads)?",
+   opts:["5/16","1/2","3/8","10/16"], correct:0,
+   ex:"C(5,3)/2^5 = 10/32 = 5/16."},
+  {q:"Draw 2 cards without replacement from a 52-card deck. P(both aces)?",
+   opts:["1/169","1/221","1/13","2/52"], correct:1,
+   ex:"(4/52)(3/51) = 12/2652 = 1/221."},
+  {q:"Flip a fair coin 3 times. P(at least one head)?",
+   opts:["3/4","7/8","1/2","5/8"], correct:1,
+   ex:"1 − (1/2)^3 = 7/8."},
+  {q:"Roll two fair dice. P(both show the same number)?",
+   opts:["1/6","1/12","5/36","1/3"], correct:0,
+   ex:"6 doubles of 36 outcomes = 1/6."},
+  {q:"Monty Hall: 3 doors, you pick one, the host opens a different door showing a goat, then offers a switch. P(win the car if you switch)?",
+   opts:["1/2","1/3","2/3","3/4"], correct:2,
+   ex:"Your first pick wins 1/3 of the time; switching wins the complementary 2/3."},
+  {q:"Roll three fair dice. Expected value of the sum?",
+   opts:["9","10","10.5","11"], correct:2,
+   ex:"3 × 3.5 = 10.5."},
+  {q:"Draw one card. P(it is a king OR a heart)?",
+   opts:["4/13","17/52","15/52","1/4"], correct:0,
+   ex:"13 hearts + 4 kings − 1 king of hearts = 16/52 = 4/13. The 17/52 trap forgets to subtract the king of hearts."},
+  {q:"Roll two fair dice. P(the sum is even)?",
+   opts:["1/2","5/9","4/9","7/12"], correct:0,
+   ex:"Sum is even when both dice match parity: 18 of 36 = 1/2."},
+  {q:"A bag has 3 red and 2 blue balls. Draw 2 without replacement. P(both red)?",
+   opts:["3/10","9/25","2/5","6/25"], correct:0,
+   ex:"(3/5)(2/4) = 6/20 = 3/10."},
+  {q:"Fair die. You win the face value in dollars, but it costs $4 to play. Expected profit per play?",
+   opts:["+$0.50","−$0.50","$0","+$3.50"], correct:1,
+   ex:"E[face] = 3.5, minus the $4 cost = −$0.50. A losing game."},
+];
+
+function shuffle(a){ const x=a.slice(); for(let i=x.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [x[i],x[j]]=[x[j],x[i]]; } return x; }
+
+/* Computed-answer probability generators: exact answers, so they are always
+   correct and never run out. Keeps the drill from being the same 20 forever. */
+function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; }
+function fr(n,d){ if(d<0){n=-n; d=-d;} const g=gcd(n,d); n/=g; d/=g; return d===1?String(n):n+"/"+d; }
+function dec(x){ return Number.isInteger(x)?String(x):String(Math.round(x*1000)/1000); }
+function nCk(n,k){ if(k<0||k>n) return 0; let r=1; for(let i=0;i<k;i++){ r=r*(n-i)/(i+1); } return Math.round(r); }
+function buildMC(q, correct, cands, ex){
+  // correct & cands entries are {l:label, v:value}
+  const pad=[{l:"1/2",v:.5},{l:"1/3",v:1/3},{l:"1/4",v:.25},{l:"2/3",v:2/3},{l:"1/6",v:1/6},{l:"1/5",v:.2}];
+  const opts=[correct];
+  for(const c of cands.concat(pad)){
+    if(opts.length>=4) break;
+    if(opts.some(o=>o.l===c.l || Math.abs(o.v-c.v)<1e-9)) continue;
+    opts.push(c);
+  }
+  const sh=shuffle(opts);
+  const correctIdx=sh.findIndex(o=>o.l===correct.l && Math.abs(o.v-correct.v)<1e-9);
+  return {q, opts:sh.map(o=>o.l), correct:correctIdx, ex, _cv:correct.v};
+}
+function genProb(){
+  const t=pick(["sum","heads","atleast","evdie","firstface","adjacent"]);
+  if(t==="sum"){
+    const N=ri(2,12), w=6-Math.abs(7-N);
+    return buildMC(`Roll two fair dice. P(the sum equals ${N})?`,
+      {l:fr(w,36),v:w/36},
+      [{l:fr(Math.max(1,w-1),36),v:Math.max(1,w-1)/36},{l:fr(Math.min(6,w+1),36),v:Math.min(6,w+1)/36},{l:fr(N,36),v:N/36},{l:"1/6",v:1/6}],
+      `Of 36 equally likely ordered rolls, ${w} sum to ${N}, so ${fr(w,36)}.`);
+  }
+  if(t==="heads"){
+    const n=ri(3,6), k=ri(0,n), c=nCk(n,k), tot=Math.pow(2,n);
+    const cands=[];
+    if(k+1<=n) cands.push({l:fr(nCk(n,k+1),tot),v:nCk(n,k+1)/tot});
+    if(k-1>=0) cands.push({l:fr(nCk(n,k-1),tot),v:nCk(n,k-1)/tot});
+    cands.push({l:fr(k,n),v:k/n},{l:"1/2",v:.5});
+    return buildMC(`Flip a fair coin ${n} times. P(exactly ${k} heads)?`,
+      {l:fr(c,tot),v:c/tot}, cands,
+      `C(${n},${k}) / 2^${n} = ${c}/${tot} = ${fr(c,tot)}.`);
+  }
+  if(t==="atleast"){
+    const m=ri(2,4), den=Math.pow(6,m), num=den-Math.pow(5,m);
+    return buildMC(`Roll a fair die ${m} times. P(at least one six)?`,
+      {l:fr(num,den),v:num/den},
+      [{l:fr(Math.pow(5,m),den),v:Math.pow(5,m)/den},{l:fr(m,6),v:m/6},{l:"1/6",v:1/6},{l:fr(1,den),v:1/den}],
+      `1 − (5/6)^${m} = ${fr(num,den)}.  (The complement, no six, is ${fr(Math.pow(5,m),den)}.)`);
+  }
+  if(t==="evdie"){
+    const s=pick([4,6,8,10,12,20]), ev=(s+1)/2;
+    return buildMC(`A fair ${s}-sided die has faces 1 through ${s}. Expected value of one roll?`,
+      {l:dec(ev),v:ev},
+      [{l:dec(s/2),v:s/2},{l:dec((s+2)/2),v:(s+2)/2},{l:dec(s),v:s},{l:dec(s/2+1),v:s/2+1}],
+      `(1 + 2 + … + ${s}) / ${s} = (${s}+1)/2 = ${dec(ev)}.`);
+  }
+  if(t==="firstface"){
+    const s=pick([4,6,8,10,12]);
+    return buildMC(`You roll a fair ${s}-sided die until a chosen face appears. Expected number of rolls?`,
+      {l:dec(s),v:s},
+      [{l:dec(s-1),v:s-1},{l:dec(s+1),v:s+1},{l:dec(Math.round(s/2)),v:Math.round(s/2)},{l:dec(2*s),v:2*s}],
+      `Geometric with success probability 1/${s}, so the expected wait is 1 / (1/${s}) = ${s}.`);
+  }
+  // adjacent
+  const n=ri(4,9);
+  return buildMC(`${n} people sit in a row in random order. P(two particular people sit next to each other)?`,
+    {l:fr(2,n),v:2/n},
+    [{l:fr(1,n),v:1/n},{l:fr(2,n-1),v:2/(n-1)},{l:fr(1,n-1),v:1/(n-1)},{l:"1/2",v:.5}],
+    `Glue the pair into one block: 2 · ${n-1}! / ${n}! = 2/${n} = ${fr(2,n)}.`);
+}
+function drawProb(extra){
+  const classics = PROB_BANK.concat((extra && extra.probability) || []);
+  if(Math.random()<0.45) return classics[Math.floor(Math.random()*classics.length)];
+  return genProb();
+}
+
+function Probability({onHome, extra}){
+  const [q,setQ]=useState(()=>drawProb(extra));
+  const [chosen,setChosen]=useState(null);
+  const [streak,setStreak]=useState(0);
+  const [best,setBest]=useBest("qd_prob_best",0);
+
+  function choose(i){
+    if(chosen!==null) return;
+    setChosen(i);
+    if(i===q.correct){ const ns=streak+1; setStreak(ns); if(ns>best) setBest(ns); }
+    else setStreak(0);
+  }
+  function next(){ setQ(drawProb(extra)); setChosen(null); }
+  const bankN = PROB_BANK.length + (((extra && extra.probability) || []).length);
+
+  return (
+    <div>
+      <Header title="Probability & EV" onHome={onHome}/>
+      <div className="hud">
+        <div className="stat"><div className="k">Streak</div><div className="v" style={{color:"var(--green)"}}>{streak}</div></div>
+        <div className="stat"><div className="k">Best streak</div><div className="v" style={{color:"var(--amber)"}}>{best}</div></div>
+        <div className="stat"><div className="k">Bank</div><div className="v">{bankN}+</div></div>
+      </div>
+      <div className="card">
+        <div style={{fontSize:17,fontWeight:600,lineHeight:1.4}}>{q.q}</div>
+        <div className="opts">
+          {q.opts.map((o,i)=>{
+            let cls="btn opt";
+            if(chosen!==null){
+              if(i===q.correct) cls+=" correct";
+              else if(i===chosen) cls+=" wrong";
+            }
+            return <button key={i} className={cls} onClick={()=>choose(i)}>{o}</button>;
+          })}
+        </div>
+        {chosen!==null && (
+          <div>
+            <div className="explain">
+              <b style={{color: chosen===q.correct?"var(--green)":"var(--red)"}}>
+                {chosen===q.correct?"Correct.":"Not quite."}</b> {q.ex}
+            </div>
+            <button className="btn green wide" style={{marginTop:12}} onClick={next}>Next question</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* =====================================================================
+   DRILL 4 — MARKET MAKER
+   ===================================================================== */
+const MM_ROUNDS = 8;
+const MM_SECONDS = 18;
+function genMarket(){
+  const type=pick(["mul","mac","sum","pctbig"]);
+  if(type==="mul"){ const a=ri(31,89), b=ri(31,89); return {q:`${a} × ${b}`, val:a*b}; }
+  if(type==="mac"){ const a=ri(17,49), b=ri(11,29), c=ri(40,300); return {q:`${a} × ${b} + ${c}`, val:a*b+c}; }
+  if(type==="sum"){ const xs=[ri(120,900),ri(120,900),ri(120,900),ri(120,900)]; return {q:xs.join(" + "), val:xs.reduce((s,x)=>s+x,0)}; }
+  const p=pick([13,17,23,37]), n=ri(400,1900); return {q:`${p}% of ${n}`, val:Math.round(p*n/100)};
+}
+function scoreQuote(bid, ask, val){
+  // returns {pts, label, detail}
+  if(bid===null || ask===null) return {pts:-40, label:"No quote", detail:"You must show a two-sided market."};
+  if(ask<bid) return {pts:-40, label:"Inverted", detail:"Your ask was below your bid — never quote a crossed market."};
+  const spread=ask-bid;
+  const k=Math.max(15, Math.round(0.04*Math.abs(val)));
+  if(bid<=val && val<=ask){
+    const pts=Math.max(8, Math.round(100*Math.exp(-spread/(2*k))));
+    return {pts, label:"Filled ✓", detail:`Spread ${spread}. Tighter pays more.`};
+  }
+  const dist = val<bid ? (bid-val) : (val-ask);
+  const pts = -Math.min(120, Math.round(15 + 60*dist/k));
+  return {pts, label:"Run over", detail:`True value was ${dist} outside your ${val<bid?"bid":"ask"}.`};
+}
+
+function MarketMaker({onHome}){
+  const [phase,setPhase]=useState("intro"); // intro | quote | reveal | done
+  const [round,setRound]=useState(0);
+  const [cur,setCur]=useState(null);
+  const [left,setLeft]=useState(MM_SECONDS);
+  const [bidD,setBidD]=useState(""); const [bidS,setBidS]=useState(1);
+  const [askD,setAskD]=useState(""); const [askS,setAskS]=useState(1);
+  const [pnl,setPnl]=useState(0);
+  const [last,setLast]=useState(null);
+  const [log,setLog]=useState([]);
+  const [best,setBest]=useBest("qd_mm_best",-99999);
+  const tick=useRef(null);
+
+  const stop=useCallback(()=>{ if(tick.current){clearInterval(tick.current); tick.current=null;} },[]);
+  useEffect(()=>stop,[stop]);
+
+  function begin(){
+    setRound(0); setPnl(0); setLog([]); setLast(null);
+    setCur(genMarket()); setLeft(MM_SECONDS); resetInputs(); setPhase("quote");
+  }
+  function resetInputs(){ setBidD(""); setBidS(1); setAskD(""); setAskS(1); }
+
+  // countdown
+  useEffect(()=>{
+    if(phase!=="quote") return;
+    tick.current=setInterval(()=>{
+      setLeft(l=>{ if(l<=1){ stop(); lockIn(); return 0; } return l-1; });
+    },1000);
+    return stop;
+  },[phase,cur]); // eslint-disable-line
+
+  function parse(d,s){ return d==="" ? null : s*parseFloat(d); }
+
+  function lockIn(){
+    stop();
+    const bid=parse(bidD,bidS), ask=parse(askD,askS);
+    const res=scoreQuote(bid,ask,cur.val);
+    setLast({...res, bid, ask, val:cur.val, q:cur.q});
+    setPnl(p=>p+res.pts);
+    setLog(L=>[...L, {q:cur.q, bid, ask, val:cur.val, pts:res.pts, label:res.label}]);
+    setPhase("reveal");
+  }
+  function nextRound(){
+    const nr=round+1;
+    if(nr>=MM_ROUNDS){
+      setPnl(p=>{ if(p>best) setBest(p); return p; });
+      setPhase("done"); return;
+    }
+    setRound(nr); setCur(genMarket()); setLeft(MM_SECONDS); resetInputs(); setPhase("quote");
+  }
+
+  if(phase==="intro"){
+    return (
+      <div>
+        <Header title="Market Maker" onHome={onHome}/>
+        <div className="card">
+          <p className="note">
+            Each round shows an expression you can't compute exactly in time. Quote a two-sided
+            market — a <b style={{color:"var(--green)"}}>bid</b> and an <b style={{color:"var(--red)"}}>ask</b> — before the {MM_SECONDS}s clock runs out.
+          </p>
+          <p className="note">
+            If the true value lands inside your quote you're filled, and a tighter spread scores more.
+            Land outside and you're run over, losing more the further off you are. A crossed or missing
+            quote scores worst.
+          </p>
+          <div className="seg"><button className="btn green wide" onClick={begin}>Open trading — {MM_ROUNDS} rounds</button></div>
+          <p className="note center" style={{marginTop:10}}>Best session P&L: <b className="mono" style={{color:best>=0?"var(--green)":"var(--red)"}}>{best<=-99999?"—":(best>0?"+":"")+best}</b></p>
+        </div>
+      </div>
+    );
+  }
+
+  if(phase==="quote"){
+    const frac=left/MM_SECONDS;
+    const cls=frac<0.25?"crit":frac<0.5?"warn":"";
+    return (
+      <div>
+        <div className="hud">
+          <div className="stat"><div className="k">Round</div><div className="v">{round+1}/{MM_ROUNDS}</div></div>
+          <div className="stat"><div className="k">Clock</div><div className="v" style={{color:cls==="crit"?"var(--red)":cls==="warn"?"var(--amber)":"var(--text)"}}>{left}s</div></div>
+          <div className="stat"><div className="k">P&amp;L</div><div className="v" style={{color:pnl>=0?"var(--green)":"var(--red)"}}>{pnl>0?"+":""}{pnl}</div></div>
+        </div>
+        <div className={"timerbar "+cls}><div style={{width:(frac*100)+"%"}}></div></div>
+        <div className="card" style={{marginTop:14}}>
+          <div className="prompt big mono">{cur.q}</div>
+          <div className="label">Your bid (buy)</div>
+          <SignedInput digits={bidD} sign={bidS} setDigits={setBidD} setSign={setBidS} placeholder="bid"/>
+          <div className="label">Your ask (sell)</div>
+          <SignedInput digits={askD} sign={askS} setDigits={setAskD} setSign={setAskS}/>
+          <button className="btn blue wide" style={{marginTop:14}} onClick={lockIn}>Show market</button>
+        </div>
+      </div>
+    );
+  }
+
+  if(phase==="reveal"){
+    const won=last.pts>=0;
+    return (
+      <div>
+        <Header title={`Round ${round+1} of ${MM_ROUNDS}`} onHome={onHome}/>
+        <div className="card center">
+          <div className="prompt mono" style={{fontSize:"clamp(22px,7vw,40px)",padding:"6px"}}>{last.q}</div>
+          <div className="label">True value</div>
+          <div className="big-final">{last.val}</div>
+          <p className="note" style={{marginTop:6}}>
+            Your market: <span className="mono pnl-pos">{last.bid===null?"—":last.bid}</span> / <span className="mono pnl-neg">{last.ask===null?"—":last.ask}</span>
+          </p>
+          <div style={{fontSize:22,fontWeight:800,color:won?"var(--green)":"var(--red)"}}>
+            {last.label} · {last.pts>0?"+":""}{last.pts}
+          </div>
+          <p className="note">{last.detail}</p>
+          <p className="note">Session P&amp;L: <b className="mono" style={{color:pnl>=0?"var(--green)":"var(--red)"}}>{pnl>0?"+":""}{pnl}</b></p>
+          <button className="btn green wide" style={{marginTop:10}} onClick={nextRound}>{round+1>=MM_ROUNDS?"Close the book":"Next round"}</button>
+        </div>
+      </div>
+    );
+  }
+
+  // done
+  const isBest=pnl>=best;
+  return (
+    <div>
+      <Header title="Book closed" onHome={onHome}/>
+      <div className="card center">
+        <div className="label">Session P&amp;L</div>
+        <div className="big-final" style={{color:pnl>=0?"var(--green)":"var(--red)"}}>{pnl>0?"+":""}{pnl}</div>
+        <p className="note" style={{marginTop:4}}>Best: <b className="mono" style={{color:"var(--amber)"}}>{(Math.max(best,pnl)>0?"+":"")+Math.max(best,pnl)}</b></p>
+        {isBest && pnl>-99999 && <p style={{color:"var(--amber)",fontWeight:700}}>New best session.</p>}
+        <div className="ledger">
+          <div className="row"><span>Expr</span><span>Quote → True</span><span>P&amp;L</span></div>
+          {log.map((r,i)=>(
+            <div className="row" key={i}>
+              <span style={{flex:1,textAlign:"left",color:"var(--muted)"}}>{r.q}</span>
+              <span style={{flex:1.2,textAlign:"center"}}>{r.bid===null?"—":r.bid}/{r.ask===null?"—":r.ask} → {r.val}</span>
+              <span style={{flex:.6,textAlign:"right",color:r.pts>=0?"var(--green)":"var(--red)"}}>{r.pts>0?"+":""}{r.pts}</span>
+            </div>
+          ))}
+        </div>
+        <p className="explain" style={{marginTop:14}}>Lesson: quote the tightest market that still contains the value. Too wide leaves money on the table; too tight and you get run over.</p>
+        <div className="seg" style={{marginTop:8}}>
+          <button className="btn green" onClick={begin}>New session</button>
+          <button className="btn ghost" onClick={onHome}>Desk</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ chrome --------------------------------- */
+function Header({title,onHome}){
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:12,margin:"2px 0 14px"}}>
+      <button className="btn sm ghost" onClick={onHome}>← Desk</button>
+      <h2 style={{margin:0}}>{title}</h2>
+    </div>
+  );
+}
+
+/* daily streak: increments once per calendar day you open the desk */
+function useDailyStreak(){
+  const [data,setData]=useBest("qd_daily",{last:null,count:0});
+  useEffect(()=>{
+    const tk=todayKey();
+    if(data.last===tk) return;
+    const y=new Date(); y.setDate(y.getDate()-1);
+    const yk=y.getFullYear()+"-"+String(y.getMonth()+1).padStart(2,"0")+"-"+String(y.getDate()).padStart(2,"0");
+    const count = data.last===yk ? data.count+1 : 1;
+    setData({last:tk, count});
+  },[]); // once on mount
+  return data.count;
+}
+
+function Home({go, extra}){
+  const [mathBest]=useBest("qd_math_best",{});
+  const [seqBest]=useBest("qd_seq_best",0);
+  const [probBest]=useBest("qd_prob_best",0);
+  const [mmBest]=useBest("qd_mm_best",-99999);
+  const streak=useDailyStreak();
+  const bestMath=Math.max(0,...Object.values(mathBest||{}),0);
+  const tiles=[
+    {k:"math", t:"Mental Math Sprint", d:"Optiver-style 80-in-8. Pick your clock and tier; the box auto-fires on a match.", g:"∑", best:`best cleared ${bestMath}`},
+    {k:"seq", t:"Sequences", d:"Six numbers in, name the seventh. Arithmetic to interleaved. Build the streak.", g:"…", best:`best streak ${seqBest}`},
+    {k:"prob", t:"Probability & EV", d:`${PROB_BANK.length} classics plus freshly generated questions, each with a worked explanation.`, g:"½", best:`best streak ${probBest}`},
+    {k:"mm", t:"Market Maker", d:"Quote a two-sided market against the clock. Tight pays, wide leaks, crossed kills.", g:"⇅", best:mmBest<=-99999?"no session yet":`best P&L ${mmBest>0?"+":""}${mmBest}`},
+  ];
+  return (
+    <div>
+      <div className="ticker">
+        <div className="brand">
+          <span className="dot"></span>
+          <div>QUANT DESK<small>drill the test</small></div>
+        </div>
+        <div className="stat" style={{flex:"0 0 auto",minWidth:0,padding:"6px 12px"}}>
+          <div className="k">Day streak</div>
+          <div className="v" style={{color:"var(--amber)",fontSize:18}}>{streak}🔥</div>
+        </div>
+      </div>
+      <MonthlyChallenge extra={extra}/>
+      <div className="label" style={{marginTop:18}}>Daily drills</div>
+      <div className="grid">
+        {tiles.map(t=>(
+          <div key={t.k} className="card tile" onClick={()=>go(t.k)}>
+            <span className="glyph mono">{t.g}</span>
+            <h3>{t.t}</h3>
+            <p>{t.d}</p>
+            <div className="best">{t.best}</div>
+          </div>
+        ))}
+      </div>
+      <p className="note center" style={{marginTop:18}}>
+        Four desks, one clock. Best scores persist on this device.
+      </p>
+    </div>
+  );
+}
+
+function App(){
+  const [screen,setScreen]=useState("home");
+  // Optional fresh content published to the repo by a scheduled task.
+  // Fetched once; merged in if present; app works fully without it.
+  const [extra,setExtra]=useState({monthly:[],probability:[]});
+  useEffect(()=>{
+    let live=true;
+    (async()=>{
+      try{
+        const r=await fetch("./bank.json",{cache:"no-store"});
+        if(!r.ok) return;
+        const j=await r.json();
+        if(!live) return;
+        setExtra({
+          monthly: Array.isArray(j.monthly)?j.monthly:[],
+          probability: Array.isArray(j.probability)?j.probability:[],
+        });
+      }catch(e){}
+    })();
+    return ()=>{ live=false; };
+  },[]);
+  const go=(s)=>setScreen(s);
+  const home=()=>setScreen("home");
+  let body;
+  if(screen==="home") body=<Home go={go} extra={extra}/>;
+  else if(screen==="math") body=<MentalMath onHome={home}/>;
+  else if(screen==="seq") body=<Sequences onHome={home}/>;
+  else if(screen==="prob") body=<Probability onHome={home} extra={extra}/>;
+  else if(screen==="mm") body=<MarketMaker onHome={home}/>;
+  return <div className="wrap">{body}</div>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
