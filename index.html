@@ -182,35 +182,37 @@ function SignedInput({digits, sign, setDigits, setSign, onEnter, placeholder, au
    CHALLENGE OF THE MONTH  (curated, verified; no hints, statement only)
    One per calendar month, rotating deterministically. A month-long think.
    ===================================================================== */
+// Each: {cat, diff (1-5 difficulty), src (provenance, not shown in UI), text}.
+// Floor enforced in MonthlyChallenge: only diff >= 3 ever rotates in.
 const MONTHLY_CHALLENGES = [
- {cat:"Number Theory", text:"Prove that among any 51 integers chosen from {1, 2, …, 100}, there must exist two of them such that one divides the other."},
- {cat:"Combinatorics", text:"Two opposite corner squares are removed from an 8×8 chessboard, leaving 62 squares. Prove that the remaining board cannot be completely covered by 31 dominoes (each covering two adjacent squares)."},
- {cat:"Invariants", text:"The integers 1, 2, 3, …, 1000 are written on a board. Repeatedly erase any two of them and write down their absolute difference, until a single number remains. Determine, with proof, whether the final number is odd or even."},
- {cat:"Number Theory", text:"Prove that the product of any four consecutive positive integers is never a perfect square."},
- {cat:"Combinatorics", text:"In how many ways can a 2×n strip be tiled by 1×2 dominoes? Find a formula and prove it."},
- {cat:"Geometry", text:"Five points are placed inside (or on the boundary of) a unit square. Prove that some two of them are at distance at most √2 / 2 from each other."},
- {cat:"Inequalities", text:"Let a, b, c be positive reals with a + b + c = 3. Prove that a² + b² + c² ≥ 3, and determine when equality holds."},
- {cat:"Number Theory", text:"Prove that there are infinitely many prime numbers of the form 4k + 3."},
- {cat:"Graph Theory", text:"At a gathering of n ≥ 2 people, some pairs are friends (friendship is mutual). Prove that there must be two people who have exactly the same number of friends present."},
- {cat:"Algebra", text:"Prove that 1/(1·2) + 1/(2·3) + 1/(3·4) + … + 1/(n(n+1)) = n/(n+1) for every positive integer n. What does the sum approach as n → ∞?"},
- {cat:"Probability", text:"A fair coin is flipped repeatedly until two heads appear in a row. Find the expected number of flips required."},
- {cat:"Probability", text:"n people leave their hats at a coat check; the hats are returned in a uniformly random order. Find the probability that nobody receives their own hat, and determine its limit as n → ∞."},
- {cat:"Number Theory", text:"Prove that n⁵ − n is divisible by 30 for every integer n."},
- {cat:"Ramsey Theory", text:"Six people are at a party. Prove that there must be either three people who are all mutual friends, or three people who are all mutual strangers."},
- {cat:"Algebra", text:"Let P be a polynomial with integer coefficients such that P(0) and P(1) are both odd. Prove that P has no integer root."},
- {cat:"Combinatorics", text:"How many subsets of {1, 2, …, n} contain no two consecutive integers? Prove that the count is a Fibonacci number."},
- {cat:"Number Theory", text:"Prove that √2 is irrational. Then prove the stronger statement that √n is irrational for every positive integer n that is not a perfect square."},
- {cat:"Invariants", text:"An island has 13 red, 15 green, and 17 blue chameleons. Whenever two chameleons of different colors meet, they both change to the third color. Can the chameleons ever all become the same color? Prove your answer."},
- {cat:"Analysis", text:"Define a₁ = 1 and a_{n+1} = a_n + 1/a_n for n ≥ 1. Prove that 14 < a₁₀₀ < 15."},
- {cat:"Graph Theory", text:"Prove that in any group of people, the number of people who have shaken hands an odd number of times is even."},
- {cat:"Geometry", text:"Prove that the three medians of a triangle divide it into six smaller triangles, all of equal area."},
- {cat:"Number Theory", text:"Prove that n⁴ + 4 is not prime for any integer n > 1."},
- {cat:"Probability", text:"A fair six-sided die is rolled repeatedly and the results are summed into a running total. For a large target N, what is the approximate probability that the running total ever exactly equals N, in the limit as N → ∞?"},
- {cat:"Combinatorics", text:"Prove that a 10×10 board cannot be tiled by 1×4 rectangles (using any mix of horizontal and vertical placements)."},
+ {cat:"Number Theory", diff:3, src:"IMO 1959 P1", text:"Prove that the fraction (21n + 4)/(14n + 3) is irreducible for every natural number n."},
+ {cat:"Number Theory", diff:3, src:"IMO 1964 P1", text:"(a) Find all positive integers n for which 2ⁿ − 1 is divisible by 7. (b) Prove that there is no positive integer n for which 2ⁿ + 1 is divisible by 7."},
+ {cat:"Combinatorics", diff:3, src:"PROMYS 2022 P3", text:"Call a positive integer scattered if its binary expansion never has two 1s immediately next to each other (37 = 100101 in binary is scattered; 45 = 101101 is not). How many scattered numbers are less than 2ⁿ? Prove your answer."},
+ {cat:"Algorithms", diff:3, src:"Mathcamp 2023 QQ P1", text:"A calculator has only two buttons: +1 (adds one) and ×2 (doubles). Starting from 0, for each nonnegative integer n find the shortest sequence of button presses that reaches n, and prove it is shortest."},
+ {cat:"Game Theory", diff:3, src:"UCF HSPT 2015 (adapted)", text:"A pile has n stones. Two players alternate, each removing between 1 and m stones. Whoever removes the last stone loses. The first player moves first. For which pairs (n, m) does the first player have a winning strategy? Prove your answer."},
+ {cat:"Number Theory", diff:3, src:"PROMYS 2022 P5", text:"A rectangular floor is tiled by unit squares in an m × n grid. A spider walks in a straight line from one corner to the diagonally opposite corner. How many tiles does its path pass through (a tile touched only at a corner does not count)? Prove your answer."},
+ {cat:"Number Theory", diff:3, src:"PROMYS 2022 P2", text:"The echo of a positive integer is the number written twice in a row with no space: the echo of 2022 is 20222022. Is there a positive integer whose echo is a perfect square? If so, how many are there; if not, prove there are none."},
+ {cat:"Number Theory", diff:3, src:"Ross 2016 P1", text:"Choose a finite subset of the powers of two 1, 2, 4, 8, 16, …, list them in increasing order, and combine them with alternating + and − signs (for example 3 = 1 − 2 + 4). (a) Is every positive integer expressible this way? Prove it. (b) For a given n, how many such expressions are there? Prove your count."},
+ {cat:"Inequalities", diff:4, src:"IMO 1964 P2", text:"Let a, b, c be the side lengths of a triangle. Prove that a²(b + c − a) + b²(c + a − b) + c²(a + b − c) ≤ 3abc."},
+ {cat:"Ramsey Theory", diff:4, src:"IMO 1964 P4", text:"Seventeen people each correspond by mail with all the others. In their letters only three different topics are discussed, and each pair of people discusses exactly one topic. Prove that there are at least three people who all discuss the same topic with one another."},
+ {cat:"Combinatorics", diff:4, src:"Ross 2016 P3", text:"Each dot of an 8 × 8 grid is colored red or blue. (a) Prove that some four dots of one color form the corners of a rectangle with horizontal and vertical sides. (b) Find a red/blue coloring of a 4 × 5 grid with no such monochromatic rectangle, and decide for which m × n grids one is forced. (c) If each dot of a 100 × 100 grid is given one of three colors, must a monochromatic rectangle exist? What about 40 × 40?"},
+ {cat:"Geometry", diff:4, src:"Ross 2016 P6", text:"Call a point P generic if all of its distances to lattice points (points with integer coordinates) are distinct. Is there a generic point with rational coordinates — or must some two lattice points be equidistant from any rational point (r, s)? Prove your answer."},
+ {cat:"Analysis", diff:4, src:"Ross 2016 P7", text:"Fix a seed c and define b_1 = c and b_(n+1) = c − 1/b_n for every n ≥ 1. (a) If c ≥ 2, must the sequence stay positive and be decreasing? (b) If 0 < c < 2, must it eventually take a negative value or reach b_k = 0? Prove your answers; numerical evidence alone is not a proof."},
+ {cat:"Number Theory", diff:4, src:"PROMYS 2022 P4", text:"(a) Prove that n⁴ + 2n³ + 2n² + 2n + 1 is never a perfect square for any positive integer n. (b) Find all positive integers n for which n⁴ + n³ + n² + n + 1 is a perfect square, and prove you have them all."},
+ {cat:"Number Theory", diff:4, src:"PROMYS 2022 P7", text:"For a positive integer n, let G(n) be the geometric mean and A(n) the arithmetic mean of the positive divisors of n. For which n is G(n) an integer? For which n is A(n) an integer? Characterize as much as you can, with proof."},
+ {cat:"Combinatorics", diff:4, src:"PROMYS 2022 P6", text:"Can the numbers 1, 2, …, 9 be placed in a 3 × 3 grid so that the three row-products, taken as a set, equal the three column-products? What about 1, 2, …, 25 in a 5 × 5 grid, or 1, …, n² in an n × n grid? Find conditions on n that force it to be possible or impossible, with proof."},
+ {cat:"Geometry", diff:4, src:"PROMYS 2022 P9", text:"Start with an equilateral triangle P₀ of area 10. Trisect each side and snip off the three corners to get a hexagon P₁; repeat the trisect-and-snip on P₁ to get P₂, and so on. Find the area of P₁ and of P₂, and determine the limiting shape and area of P∞. Prove your answers."},
+ {cat:"Combinatorics", diff:4, src:"Mathcamp 2019 QQ P3", text:"People stand in a circle and count 1, 2, 3, … in turn, going clockwise. On a multiple of 7 the speaker says FLIP and the direction reverses; on a multiple of 8 the speaker says FLOP and the next person is skipped (direction unchanged). (a) Prove that, whatever the number of people, every person eventually gets a turn. (b) If 7 and 8 are replaced by integers K and M, for which K, M is every player still guaranteed a turn regardless of the number of people? Prove your answer."},
+ {cat:"Probability", diff:4, src:"Mathcamp 2019 QQ P2", text:"Susan rolls a die; each time she rolls a 1 she replaces that die with two new dice (and keeps replacing any 1s), then scores the sum of the dice once no 1 shows. Eric rolls a die; while his total is even he rerolls, each time using one more die than before, and scores his first odd total. On average, how many points does each of Susan and Eric score on a turn? Prove your answers."},
+ {cat:"Probability", diff:4, src:"UCF HSPT 2015 (adapted)", text:"You start with the value 1. You must apply a operations of the form add x and b operations of the form multiply by x (where x ≥ 2 is a fixed integer), performing all a + b operations in a uniformly random order. Find the expected final value as a function of x, a, and b, and prove your formula."},
+ {cat:"Probability", diff:5, src:"PROMYS 2022 P10", text:"On a single infinitely long track, trains cannot pass; whenever a train catches the one ahead, they merge and continue at the slower speed. Start with n equally spaced trains, each at a different constant speed, in a uniformly random order (all n! orders equally likely). After a long time, how many separate trains remain on average? Find the expected number for general n, and prove it."},
+ {cat:"Algebra", diff:5, src:"Ross 2016 P5", text:"A monic polynomial f(x) has the factor-square property if f(x) divides f(x²) (for example x, x − 1, and x² + x + 1 have it). Determine all monic polynomials with this property: examine degrees 1 through 4, decide whether every example is a product of smaller such polynomials, and whether the answer changes over the real or complex numbers. Prove your characterization."},
+ {cat:"Number Theory", diff:5, src:"PROMYS 2022 P8", text:"A set S of rational numbers is built by three rules: (i) 1/1 is in S; (ii) if a/b is in S in lowest terms, then b/(2a) is in S; (iii) if a/b and c/d are in S in lowest terms, then (a+c)/(b+d) is in S. No other numbers are in S. Describe exactly which rational numbers belong to S, and prove it."},
+ {cat:"Geometry", diff:5, src:"IMO 1964 P5", text:"Five points lie in the plane so that no two of the lines joining them are parallel, perpendicular, or coincident. From each point, a perpendicular is dropped to every line joining two of the other four points. Determine the maximum number of intersection points these perpendiculars can have."},
 ];
 
 function MonthlyChallenge({extra}){
-  const bank = MONTHLY_CHALLENGES.concat((extra && extra.monthly) || []);
+  const bank = MONTHLY_CHALLENGES.concat((extra && extra.monthly) || []).filter(p => (p.diff||0) >= 3);
   const now = new Date();
   const mIdx = now.getFullYear()*12 + now.getMonth();
   const ch = bank[((mIdx % bank.length)+bank.length) % bank.length];
@@ -228,6 +230,7 @@ function MonthlyChallenge({extra}){
         <div className="ch-days">{daysLeft} day{daysLeft===1?"":"s"} left</div>
       </div>
       <span className="chip">{ch.cat}</span>
+      {ch.diff ? <span className="chip" style={{marginLeft:6,opacity:.8}}>Level {ch.diff}</span> : null}
       <p className="ch-text">{ch.text}</p>
       <div className="seg" style={{marginTop:6}}>
         <button className={"btn sm "+(solved?"green":"ghost")} onClick={()=>setSolved(!solved)}>
